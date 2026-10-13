@@ -2,7 +2,7 @@
   "name": "dsh-mobile-remote-view",
   "displayName": "DSH mobile remote view",
   "description": "Rotates the DSH Web GUI a quarter turn and turns the sidebar, conversation and right panel into full-screen pages for phone-sized remote screens",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "author": "RonnyJung2021 <263851522+RonnyJung2021@users.noreply.github.com>",
   "keywords": [
