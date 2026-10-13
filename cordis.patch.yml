@@ -1,0 +1,16 @@
+# Bundle patch for the mobile remote view.
+#
+# Installing this package as a profile bundle (`dsh plugin add`, or the Plugins
+# page) activates the row below at the bundle layer, so any engine started by
+# hand — `dsh web` in a terminal, the browser GUI — carries the plugin too. A
+# profile patch (or the VS Code extension's managed overlay) that points a
+# `file://` URL at this checkout is applied later and wins: the row below is
+# only the packaged default.
+#
+# The row is deliberately config-free. A bundle layer has no idea which screen
+# the page will end up on, and every field has a working default (rotate -90,
+# enter on first load, bar along the screen's top edge). Publish a row in a
+# later layer to change one; the browser half reads the last published row.
+- insert:
+    - id: dsh-mobile-remote-view
+      name: dsh-mobile-remote-view

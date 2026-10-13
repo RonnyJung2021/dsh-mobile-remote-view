@@ -1,0 +1,81 @@
+{
+  "name": "dsh-mobile-remote-view",
+  "displayName": "DSH mobile remote view",
+  "description": "Rotates the DSH Web GUI a quarter turn and turns the sidebar, conversation and right panel into full-screen pages for phone-sized remote screens",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "RonnyJung2021 <263851522+RonnyJung2021@users.noreply.github.com>",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "bundle",
+    "mobile",
+    "remote",
+    "small-screen"
+  ],
+  "type": "module",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "scripts",
+    "cordis.patch.yml",
+    "build.mjs",
+    "src",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc -p tsconfig.json",
+    "pretest": "node build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "prepack": "node build.mjs",
+    "prepublishOnly": "npm run typecheck && npm test",
+    "install-profile": "node scripts/install-profile.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@deepseek-ai/schemastery": "^3.18.4",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RonnyJung2021/dsh-mobile-remote-view.git"
+  },
+  "homepage": "https://github.com/RonnyJung2021/dsh-mobile-remote-view",
+  "bugs": {
+    "url": "https://github.com/RonnyJung2021/dsh-mobile-remote-view/issues"
+  }
+}
