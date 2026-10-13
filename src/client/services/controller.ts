@@ -37,6 +37,7 @@ import { appBox, appEdgeFromScreenEdge, isHorizontalEdge } from '../../utils/geo
 import { readPrefs, readSaved, writePrefs, writeSaved } from '../../utils/storage.ts'
 import { BAR_KEY_COUNT, createBar, type BarView } from '../components/controlBar.ts'
 import { createEntryButton, type EntryView } from '../components/entryButton.ts'
+import type { Translate } from '../locale.ts'
 import { createPopover, type PopoverKind, type PopoverView } from '../components/floatPanel.ts'
 import { createScrollStrip, type ScrollView } from '../components/scrollStrip.ts'
 import { showToast } from '../components/toast.ts'
@@ -55,6 +56,14 @@ export interface ControllerDeps {
   readonly config: MobileViewConfig
   /** The shell's layout service, when the shell provides one. */
   readonly layout: LayoutLike | undefined
+  /** Text lookup for the active language. */
+  readonly t: Translate
+  /**
+   * Follow language switches.
+   * @param listener - called after the active language changes.
+   * @returns the unsubscribe.
+   */
+  readonly onLocaleChange: (listener: () => void) => () => void
 }
 
 /** Root attributes the mode owns. */
@@ -85,6 +94,8 @@ export class MobileViewController {
   private readonly win: Window
   private readonly config: MobileViewConfig
   private readonly layout: LayoutLike | undefined
+  private readonly t: Translate
+  private readonly onLocaleChange: (listener: () => void) => () => void
   private readonly readViewport: () => Viewport
   private readonly fullscreen: FullscreenFace
 
@@ -123,6 +134,7 @@ export class MobileViewController {
   private syncTimer: number | null = null
 
   private unfullscreenChange: (() => void) | null = null
+  private unlocaleChange: (() => void) | null = null
   private unvirtual: VirtualizationDisposer | null = null
   private resizeScheduled = false
   private markTimer: number | null = null
@@ -136,6 +148,8 @@ export class MobileViewController {
     this.win = deps.win
     this.config = deps.config
     this.layout = deps.layout
+    this.t = deps.t
+    this.onLocaleChange = deps.onLocaleChange
     // Captured before any patch is installed: the resize path reads this while
     // the virtualised `window.innerWidth` is in force.
     this.readViewport = rawViewportReader(deps.win)
@@ -151,7 +165,7 @@ export class MobileViewController {
   /** Attach the controls and apply the remembered state. */
   start(): void {
     if (this.doc.head === null || this.doc.body === null) return
-    this.bar = createBar(this.doc, {
+    this.bar = createBar(this.doc, this.t, {
       toggleFullscreen: () => { void this.toggleAppFullscreen() },
       pages: () => { this.togglePages() },
       closeRightbar: () => { this.closeRightbar() },
@@ -160,13 +174,14 @@ export class MobileViewController {
       exit: () => { this.exit() },
     })
     this.doc.body.append(this.bar.root)
-    this.scrollView = createScrollStrip(this.doc, { scroll: direction => { this.scrollPage(direction) } })
+    this.scrollView = createScrollStrip(this.doc, this.t, { scroll: direction => { this.scrollPage(direction) } })
     this.doc.body.append(this.scrollView.root)
-    this.entry = createEntryButton(this.doc, () => { this.enter() })
+    this.entry = createEntryButton(this.doc, this.t, () => { this.enter() })
     this.startEntryWatch()
     this.win.addEventListener('resize', this.onResize)
     this.win.addEventListener('orientationchange', this.onResize)
     this.unfullscreenChange = this.fullscreen.subscribe(() => { this.refreshBar() })
+    this.unlocaleChange = this.onLocaleChange(() => { this.relabel() })
     this.doc.addEventListener('keydown', this.onKeydown, true)
     this.doc.addEventListener('click', this.onSidebarClick, true)
     this.doc.addEventListener('click', this.onOutsideClick)
@@ -181,6 +196,8 @@ export class MobileViewController {
     this.win.removeEventListener('orientationchange', this.onResize)
     this.unfullscreenChange?.()
     this.unfullscreenChange = null
+    this.unlocaleChange?.()
+    this.unlocaleChange = null
     this.doc.removeEventListener('keydown', this.onKeydown, true)
     this.doc.removeEventListener('click', this.onSidebarClick, true)
     this.doc.removeEventListener('click', this.onOutsideClick)
@@ -280,29 +297,29 @@ export class MobileViewController {
   private flip(): void {
     const next: Rotation = this.rotation() === -90 ? 90 : -90
     this.write({ rotate: next }, ['rotate'], next)
-    showToast(this.doc, this.win, next === -90 ? '已逆时针旋转 90°' : '已顺时针旋转 90°')
+    showToast(this.doc, this.win, this.t(next === -90 ? 'toast.rotate.ccw' : 'toast.rotate.cw'))
   }
 
   /** Step the scale one popover notch and remember it. */
   private stepScale(direction: number): void {
     const next = nextScale(this.activeScale(), direction)
     if (next === this.activeScale()) {
-      showToast(this.doc, this.win, direction > 0 ? '已经是最大页面缩放' : '已经是最小页面缩放')
+      showToast(this.doc, this.win, this.t(direction > 0 ? 'toast.scale.max' : 'toast.scale.min'))
       return
     }
     this.write({ scale: next }, ['scale'], next)
-    showToast(this.doc, this.win, `页面缩放 ${String(Math.round(this.activeScale() * 100))}%`)
+    showToast(this.doc, this.win, this.t('toast.scale.value', { percent: Math.round(this.activeScale() * 100) }))
   }
 
   /** Step the font size one popover notch and remember it. */
   private stepFont(direction: number): void {
     const next = nextFontSize(this.activeFont(), direction)
     if (next === this.activeFont()) {
-      showToast(this.doc, this.win, direction > 0 ? '已经是最大正文字号' : '已经是最小正文字号')
+      showToast(this.doc, this.win, this.t(direction > 0 ? 'toast.font.max' : 'toast.font.min'))
       return
     }
     this.write({ contentFontSize: next }, ['contentFontSize'], next)
-    showToast(this.doc, this.win, `正文字号 ${String(this.activeFont())}px`)
+    showToast(this.doc, this.win, this.t('toast.font.value', { size: this.activeFont() }))
   }
 
   /** Open or close one of the two value popovers. */
@@ -317,7 +334,7 @@ export class MobileViewController {
     if (trigger === null) return
     this.popoverKind = kind
     this.popoverTrigger = trigger
-    this.popover = createPopover(this.doc, kind, {
+    this.popover = createPopover(this.doc, kind, this.t, {
       step: (popKind, direction) => {
         if (popKind === 'scale') this.stepScale(direction)
         else this.stepFont(direction)
@@ -350,10 +367,10 @@ export class MobileViewController {
   private async toggleAppFullscreen(): Promise<void> {
     const result = await this.fullscreen.toggle()
     this.refreshBar()
-    if (result === 'on') showToast(this.doc, this.win, 'App 已占满整个屏幕')
-    else if (result === 'off') showToast(this.doc, this.win, '已退出全屏')
-    else if (result === 'refused') showToast(this.doc, this.win, '这次全屏没被允许，再点一次试试')
-    else showToast(this.doc, this.win, '这个环境不允许页面全屏（iOS Safari 就是这种）')
+    if (result === 'on') showToast(this.doc, this.win, this.t('toast.fullscreen.on'))
+    else if (result === 'off') showToast(this.doc, this.win, this.t('toast.fullscreen.off'))
+    else if (result === 'refused') showToast(this.doc, this.win, this.t('toast.fullscreen.refused'))
+    else showToast(this.doc, this.win, this.t('toast.fullscreen.unsupported'))
   }
 
   /** Close the open right panel through the shell's own control. */
@@ -386,14 +403,14 @@ export class MobileViewController {
   private scrollPage(direction: number): void {
     const scroller = this.findScroller()
     if (scroller === null) {
-      showToast(this.doc, this.win, '这一页没有可滚动的内容')
+      showToast(this.doc, this.win, this.t('toast.scroll.empty'))
       return
     }
     const distance = Math.max(80, Math.round(scroller.clientHeight * 0.7))
     try {
       scroller.scrollBy({ top: direction * distance, behavior: 'smooth' })
     } catch (error) {
-      console.warn('dsh-mobile-remote-view: 滚动失败', error)
+      console.warn('dsh-mobile-remote-view: scroll failed', error)
     }
   }
 
@@ -500,7 +517,7 @@ export class MobileViewController {
   /** Change one knob: through the profile when served, and in this page only when not. */
   private write(patch: Partial<MobileViewSection>, path: readonly string[], value: unknown): void {
     if (this.writer === undefined) {
-      showToast(this.doc, this.win, '这台引擎没有设置接口：这个选择只对当前页面有效')
+      showToast(this.doc, this.win, this.t('toast.settings.absent'))
     } else {
       this.writer(path, value)
     }
@@ -513,6 +530,25 @@ export class MobileViewController {
   }
 
   /** Everything the bar's faces are derived from. */
+  /**
+   * Re-read every label after the shell's language changed.
+   *
+   * The bar's own refresh re-renders its keys, so only the two builders that
+   * write their text once need a nudge.
+   */
+  private relabel(): void {
+    this.refreshBar()
+    this.scrollView?.refresh()
+    this.entry?.refresh()
+    if (this.popoverKind !== null) {
+      // The popover's own copy is built with the popover; reopen it on the new
+      // language rather than leaving one panel in the old one.
+      const kind = this.popoverKind
+      this.closePopover()
+      this.togglePopover(kind)
+    }
+  }
+
   private barState(): BarState {
     return {
       page: this.state.page,
@@ -757,7 +793,7 @@ export class MobileViewController {
       }
       this.sidebarRequest = null
       this.sidebarControlDisabled = true
-      showToast(this.doc, this.win, '这台外壳不支持自动展开侧栏')
+      showToast(this.doc, this.win, this.t('toast.sidebar.unsupported'))
       this.syncPage()
     }, SIDEBAR_SETTLE_MS)
   }

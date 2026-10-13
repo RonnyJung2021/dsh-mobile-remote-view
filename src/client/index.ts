@@ -17,6 +17,7 @@ import type { MobileViewSection } from '../types/config.ts'
 import type { ConfigFormLike, ConfigFormsLike, LayoutLike, SlotRegistryLike } from '../types/settings.ts'
 import { hostPublished, readConfig, sectionOf } from '../utils/config.ts'
 import { MobileRemoteViewPanel } from './components/configCard.tsx'
+import { installLocale, subscribeLocale } from './locale.ts'
 import { MobileViewController } from './services/controller.ts'
 import { installStyles } from './styles.ts'
 import { installCardStyles } from './stylesCard.ts'
@@ -44,7 +45,15 @@ export function apply(ctx: Context): void {
   const knobsPublished = hostPublished(globalThis as { __DSH_MOBILE_REMOTE_VIEW__?: unknown })
   const service = ctx as unknown as ServiceRegistry
   const layout = service.get('layout') as LayoutLike | undefined
-  const controller = new MobileViewController({ doc: document, win: window, config, layout })
+  const t = installLocale(ctx)
+  const controller = new MobileViewController({
+    doc: document,
+    win: window,
+    config,
+    layout,
+    t,
+    onLocaleChange: listener => subscribeLocale(ctx, listener),
+  })
   const unstyles = installStyles(document)
   const uncardStyles = installCardStyles(document)
   const start = (): void => { controller.start() }
@@ -103,7 +112,12 @@ export function apply(ctx: Context): void {
             name: 'plugins.bundle.config',
             // Keyed by the bundle's package name, which is also the namespace.
             key: SETTINGS_NAMESPACE,
-            inject: () => ({ form: form as ConfigFormLike<MobileViewSection>, hostPublished: knobsPublished }),
+            inject: () => ({
+              form: form as ConfigFormLike<MobileViewSection>,
+              hostPublished: knobsPublished,
+              t,
+              subscribeLocale: (listener: () => void) => subscribeLocale(ctx, listener),
+            }),
           },
           MobileRemoteViewPanel,
         )

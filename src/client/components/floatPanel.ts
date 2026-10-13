@@ -14,6 +14,7 @@ import { POPOVER_MINUS_ATTRIBUTE, POPOVER_PLUS_ATTRIBUTE, POPOVER_ATTRIBUTE } fr
 import { POPOVER_GAP } from '../../constants/config.ts'
 import { createElement, icon } from '../../utils/dom.ts'
 import { isEndEdge, isHorizontalEdge } from '../../utils/geometry.ts'
+import type { Translate } from '../locale.ts'
 
 /** Which knob a popover edits. */
 export type PopoverKind = 'scale' | 'font'
@@ -46,28 +47,31 @@ export interface PopoverView {
  * Build one popover for one knob.
  * @param doc - the page's document.
  * @param kind - which knob it edits.
+ * @param t - text lookup for the active language.
  * @param handlers - the calls it makes.
  * @returns the popover.
  */
-export function createPopover(doc: Document, kind: PopoverKind, handlers: PopoverHandlers): PopoverView {
-  const label = kind === 'scale' ? '页面缩放' : '正文字号'
+export function createPopover(doc: Document, kind: PopoverKind, t: Translate, handlers: PopoverHandlers): PopoverView {
+  const label = t(kind === 'scale' ? 'popover.scale' : 'popover.font')
   const root = createElement(doc, 'div', {
     [POPOVER_ATTRIBUTE]: kind,
     role: 'group',
-    'aria-label': `${label}调节`,
+    'aria-label': t('popover.group', { label }),
   })
   const value = createElement(doc, 'span', { 'aria-live': 'polite' }, [handlers.format(kind, handlers.value(kind))])
+  const minusTitle = t('popover.decrease', { label })
   const minus = createElement(doc, 'button', {
     type: 'button',
     [POPOVER_MINUS_ATTRIBUTE]: '',
-    title: `减小${label}`,
-    'aria-label': `减小${label}`,
+    title: minusTitle,
+    'aria-label': minusTitle,
   }, [icon(doc, 'minus')])
+  const plusTitle = t('popover.increase', { label })
   const plus = createElement(doc, 'button', {
     type: 'button',
     [POPOVER_PLUS_ATTRIBUTE]: '',
-    title: `增大${label}`,
-    'aria-label': `增大${label}`,
+    title: plusTitle,
+    'aria-label': plusTitle,
   }, [icon(doc, 'plus')])
   root.append(minus, value, plus)
   root.addEventListener('click', (event) => {

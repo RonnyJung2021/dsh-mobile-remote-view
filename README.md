@@ -113,6 +113,10 @@
 
 旋转之后所有测量 API 都换算回页面自己的坐标，弹层仍贴着触发器；这一层可以关（关掉后菜单会偏 90°）。
 
+### 界面跟着语言走
+
+控制条、滚动条、入口行、浮窗与插件卡片都带中英两套文案，跟随 DSH 的语言设置即时切换；英文侧按窄键宽度收短（Full / Sidebar / Chat / Close / Zoom / Font / Flip / Exit）。
+
 ### 退出就还回去
 
 点「退出」转回桌面版面，侧栏恢复到你进入前的状态；插件写在页面上的属性、样式与坐标层一并撤掉。
@@ -177,7 +181,7 @@ node scripts/install-profile.mjs --uninstall
 | 项 | 类型 | 默认 | 说明 |
 | --- | --- | --- | --- |
 | `rotate` | `-90` \| `90` | `-90` | 整页旋转方向；控制条「翻转」写的就是它 |
-| `barEdge` | `top` \| `bottom` \| `left` \| `right` | `top` | 控制条贴屏幕哪条边（按手机自己的方向） |
+| `barEdge` | `top` \| `bottom` \| `left` \| `right` | `left` | 控制条贴屏幕哪条边（按手机自己的方向） |
 | `barSize` | 40–120 | `58` | 控制条厚度（页面像素） |
 | `scale` | 0.6–2.5 | `1.5` | 页面整体缩放 |
 | `contentFontSize` | 12–27 | `19` | 正文与输入框字号（页面像素） |
@@ -210,6 +214,7 @@ src/
     ├── services/               # 状态机控制器、全屏能力
     ├── utils/                  # 区域定位、坐标层、页键三态
     └── styles.ts               # 模式的整页样式表
+locale/                         # zh.json / en.json：插件卡片与插件页的中英文案（meta 段给插件页用）
 assets/                         # 本文档用到的截图（内容为截图临时编的）
 test/                           # 49 项 node:test 单测（含打包冒烟）
 scripts/install-profile.mjs      # 装成 profile bundle / 还原

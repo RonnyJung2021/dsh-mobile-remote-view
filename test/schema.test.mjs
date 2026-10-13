@@ -16,7 +16,7 @@ function resolve(input) {
 test('an empty config resolves every default', () => {
   const resolved = resolve({})
   assert.equal(resolved.rotate, -90)
-  assert.equal(resolved.barEdge, 'top')
+  assert.equal(resolved.barEdge, 'left')
   assert.equal(resolved.barSize, 58)
   assert.equal(resolved.scale, 1.5)
   assert.equal(resolved.contentFontSize, 19)

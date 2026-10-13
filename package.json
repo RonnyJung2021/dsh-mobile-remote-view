@@ -30,6 +30,7 @@
   },
   "files": [
     "lib",
+    "locale/*.json",
     "scripts",
     "cordis.patch.yml",
     "build.mjs",

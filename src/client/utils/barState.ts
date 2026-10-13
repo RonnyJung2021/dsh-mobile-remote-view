@@ -8,6 +8,7 @@
 
 import type { IconName } from '../../utils/dom.ts'
 import type { MobilePage } from '../../enums/mobilePage.ts'
+import type { TextKey, Translate } from '../locale.ts'
 
 /** The two faces the one page key can wear. */
 export type PageKeyFace = 'sidebar' | 'main' | 'closeRightbar'
@@ -49,11 +50,31 @@ export function pageKeyAction(state: BarState): 'pages' | 'closeRightbar' {
  * The page key's label: it names where a tap goes, not where the person is,
  * so the strip reads as a list of destinations.
  * @param state - the mode's state.
+ * @param t - text lookup for the active language.
  * @returns the label to show.
  */
-export function pageKeyLabel(state: BarState): string {
-  if (state.rightbarAvailable) return '关闭右栏'
-  return state.page === 'main' ? '侧栏' : '主界面'
+export function pageKeyLabel(state: BarState, t: Translate): string {
+  return t(pageKeyTextKey(state))
+}
+
+/**
+ * The key the page key's label comes from.
+ * @param state - the mode's state.
+ * @returns the text key for the face currently in effect.
+ */
+export function pageKeyTextKey(state: BarState): TextKey {
+  if (state.rightbarAvailable) return 'bar.pages.closeRightbar'
+  return state.page === 'main' ? 'bar.pages.sidebar' : 'bar.pages.main'
+}
+
+/**
+ * The key the page key's tooltip comes from.
+ * @param state - the mode's state.
+ * @returns the text key for the face currently in effect.
+ */
+export function pageKeyTitleKey(state: BarState): TextKey {
+  if (state.rightbarAvailable) return 'bar.pages.title.closeRightbar'
+  return state.page === 'main' ? 'bar.pages.title.sidebar' : 'bar.pages.title.main'
 }
 
 /** The page key's icon for one state. */

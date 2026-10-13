@@ -18,7 +18,7 @@ import type { MobileViewConfig, MobileViewSection } from '../types/config.ts'
 /** Config used when the row published nothing. */
 export const DEFAULT_CONFIG: MobileViewConfig = {
   rotate: -90,
-  barEdge: 'top',
+  barEdge: 'left',
   barSize: 58,
   scale: SCALE_DEFAULT,
   contentFontSize: FONT_DEFAULT,

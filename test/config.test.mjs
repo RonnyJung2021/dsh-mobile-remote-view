@@ -27,7 +27,7 @@ test('a hostile global narrows field by field', () => {
   } })
   assert.deepEqual(config, {
     rotate: -90,          // not one of the two turns → default
-    barEdge: 'top',       // not one of the four edges → default
+    barEdge: 'left',      // not one of the four edges → default
     barSize: 58,          // not a number → default
     scale: 2.5,           // out of range → clamped to the ceiling
     contentFontSize: 12,  // out of range → clamped to the floor

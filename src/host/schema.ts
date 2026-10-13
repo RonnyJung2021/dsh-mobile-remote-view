@@ -22,8 +22,8 @@ export interface Config extends MobileViewConfig {
 export const Config = z.object({
   rotate: z.union([z.const(-90), z.const(90)]).default(-90)
     .description('整页旋转方向：-90 逆时针（默认），90 顺时针。控制条上的「翻转」写的就是它。').volatile(),
-  barEdge: z.union(['top', 'bottom', 'left', 'right']).default('top')
-    .description('控制条贴在手机屏幕的哪条边（按手机自己的方向），默认上边。').volatile(),
+  barEdge: z.union(['top', 'bottom', 'left', 'right']).default('left')
+    .description('控制条贴在手机屏幕的哪条边（按手机自己的方向），默认左边。').volatile(),
   barSize: z.number().min(BAR_MIN).max(BAR_MAX).default(58)
     .description(`控制条厚度（页面像素，${BAR_MIN}–${BAR_MAX}），默认 58；越小让出的画面越多。`).volatile(),
   scale: z.number().min(SCALE_MIN).max(SCALE_MAX).default(1.5)

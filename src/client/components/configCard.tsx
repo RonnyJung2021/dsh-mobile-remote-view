@@ -19,6 +19,7 @@ import {
 import type { MobileViewSection } from '../../types/config.ts'
 import type { ConfigFormLike, ConfigFormView } from '../../types/settings.ts'
 import { SECTION_DEFAULTS } from '../../utils/config.ts'
+import type { Translate } from '../locale.ts'
 
 /** Props the plugin page and the inject face put on the panel. */
 export interface MobileViewPanelProps {
@@ -28,13 +29,30 @@ export interface MobileViewPanelProps {
   readonly form: ConfigFormLike<MobileViewSection>
   /** Whether the boot global carried the knobs, i.e. the host half is current. */
   readonly hostPublished: boolean
+  /** Text lookup for the active language. */
+  readonly t: Translate
+  /**
+   * Follow language switches.
+   * @param listener - called after the active language changes.
+   * @returns the unsubscribe.
+   */
+  readonly subscribeLocale: (listener: () => void) => () => void
 }
 
 /** The sentence the card shows when the settings transport is unavailable. */
-function unavailableNote(hostPublished: boolean): string {
-  return hostPublished
-    ? '这台引擎没有提供设置接口：这里的改动只对当前页面有效，换端口就会回到 profile 里的值。'
-    : '引擎里跑的还是本插件的旧宿主半边（本页已是新版本）：宿主半边只在引擎进程启动时加载一次，重载 VS Code 窗口或重启 DSH Desktop 都只是复用同一台活引擎，换不掉它。要重启的是引擎本身——VS Code 命令面板 →「DeepSeek Harness: 重启 Host」（会打断浏览器那边正在跑的对话，本页要重开）；重启后这里的改动就能存进 profile 配置。'
+function unavailableNote(hostPublished: boolean, t: Translate): string {
+  return t(hostPublished ? 'card.note.unavailable' : 'card.note.staleHost')
+}
+
+/**
+ * Re-render a component whenever the shell's language changes.
+ * @param subscribeLocale - the locale subscription.
+ * @returns a counter that changes with the language.
+ */
+function useLocaleRevision(subscribeLocale: (listener: () => void) => () => void): number {
+  const [revision, setRevision] = useState(0)
+  useEffect(() => subscribeLocale(() => { setRevision(value => value + 1) }), [subscribeLocale])
+  return revision
 }
 
 /**
@@ -86,7 +104,8 @@ function Toggle(props: {
  * @returns the panel.
  */
 export function MobileRemoteViewPanel(props: MobileViewPanelProps): ReactNode {
-  const { form, hostPublished } = props
+  const { form, hostPublished, t, subscribeLocale } = props
+  useLocaleRevision(subscribeLocale)
   const state = useFormView(form)
   const value: MobileViewSection = { ...SECTION_DEFAULTS, ...(state.value ?? {}) }
   const writable = state.status === 'ready' && state.writable
@@ -104,7 +123,7 @@ export function MobileRemoteViewPanel(props: MobileViewPanelProps): ReactNode {
     }
     let confirmed = false
     try {
-      confirmed = window.confirm('打开后，每次新打开的 Web GUI 页面会自动进入手机远程模式，打开时的页面版面会跟着改变。确认打开吗？')
+      confirmed = window.confirm(t('card.autoEnter.confirm'))
     } catch {
       confirmed = false
     }
@@ -112,41 +131,39 @@ export function MobileRemoteViewPanel(props: MobileViewPanelProps): ReactNode {
   }
 
   const note = state.status === 'unavailable'
-    ? unavailableNote(hostPublished)
-    : state.status === 'loading'
-      ? '正在读取设置…'
-      : '这些值写进 profile 的配置里：换端口、重启、在面板与桌面窗口之间切换都还在。'
+    ? unavailableNote(hostPublished, t)
+    : t(state.status === 'loading' ? 'card.note.loading' : 'card.note')
 
   return (
     <div className="dshMrvPanel" data-plugin-config="dsh-mobile-remote-view">
       <p className="dshMrvNote">{note}</p>
 
       <div className="dshMrvGrid">
-        <Field label="旋转方向" hint="控制条上的「翻转」写的就是它。">
+        <Field label={t('card.rotate')} hint={t('card.rotate.hint')}>
           <select
             value={String(value.rotate)}
             disabled={!writable}
             onChange={event => { set('rotate', Number(event.target.value)) }}
           >
-            <option value="-90">逆时针 90°（默认）</option>
-            <option value="90">顺时针 90°</option>
+            <option value="-90">{t('card.rotate.ccw')}</option>
+            <option value="90">{t('card.rotate.cw')}</option>
           </select>
         </Field>
 
-        <Field label="控制条位置" hint="按手机自己的方向算，默认上边。">
+        <Field label={t('card.barEdge')} hint={t('card.barEdge.hint')}>
           <select
             value={value.barEdge}
             disabled={!writable}
             onChange={event => { set('barEdge', event.target.value) }}
           >
-            <option value="top">上边</option>
-            <option value="bottom">下边</option>
-            <option value="left">左边</option>
-            <option value="right">右边</option>
+            <option value="top">{t('card.barEdge.top')}</option>
+            <option value="bottom">{t('card.barEdge.bottom')}</option>
+            <option value="left">{t('card.barEdge.left')}</option>
+            <option value="right">{t('card.barEdge.right')}</option>
           </select>
         </Field>
 
-        <Field label="控制条厚度" hint={`页面像素，${BAR_MIN}–${BAR_MAX}；越小让出的画面越多。`}>
+        <Field label={t('card.barSize')} hint={t('card.barSize.hint', { min: BAR_MIN, max: BAR_MAX })}>
           <input
             type="number"
             min={BAR_MIN}
@@ -158,7 +175,7 @@ export function MobileRemoteViewPanel(props: MobileViewPanelProps): ReactNode {
           />
         </Field>
 
-        <Field label="页面缩放" hint={`「页面缩放」浮窗写的就是它：${SCALE_MIN}–${SCALE_MAX}，默认 1.5。`}>
+        <Field label={t('card.scale')} hint={t('card.scale.hint', { min: SCALE_MIN, max: SCALE_MAX })}>
           <input
             type="number"
             min={SCALE_MIN}
@@ -170,7 +187,7 @@ export function MobileRemoteViewPanel(props: MobileViewPanelProps): ReactNode {
           />
         </Field>
 
-        <Field label="正文字号" hint={`正文与输入框，${FONT_MIN}–${FONT_MAX} 页面像素，默认 19。`}>
+        <Field label={t('card.font')} hint={t('card.font.hint', { min: FONT_MIN, max: FONT_MAX })}>
           <input
             type="number"
             min={FONT_MIN}
@@ -185,15 +202,15 @@ export function MobileRemoteViewPanel(props: MobileViewPanelProps): ReactNode {
 
       <div className="dshMrvToggles">
         <Toggle
-          label="打开 Web GUI 自动进入手机远程模式"
-          hint="默认不勾；勾上后，新打开的页面直接进模式（勾选时要确认一次）。"
+          label={t('card.autoEnter')}
+          hint={t('card.autoEnter.hint')}
           checked={value.autoEnter}
           disabled={!writable}
           onChange={setAutoEnter}
         />
         <Toggle
-          label="换算坐标"
-          hint="把矩形与指针换算到旋转后的页面坐标；菜单、提示、拖拽要靠它，关掉会错位。"
+          label={t('card.virtualize')}
+          hint={t('card.virtualize.hint')}
           checked={value.virtualizeCoordinates}
           disabled={!writable}
           onChange={next => { set('virtualizeCoordinates', next) }}
@@ -212,10 +229,10 @@ export function MobileRemoteViewPanel(props: MobileViewPanelProps): ReactNode {
             })))
           }}
         >
-          恢复默认
+          {t('card.reset')}
         </button>
         <span className="dshMrvStatus">
-          {writable ? '改动立即生效，并写进 profile 配置' : '这份表单当前不可写'}
+          {t(writable ? 'card.status.saved' : 'card.status.readonly')}
         </span>
       </div>
     </div>

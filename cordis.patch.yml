@@ -9,7 +9,7 @@
 #
 # The row is deliberately config-free. A bundle layer has no idea which screen
 # the page will end up on, and every field has a working default (rotate -90,
-# enter on first load, bar along the screen's top edge). Publish a row in a
+# enter on first load, bar along the screen's left edge). Publish a row in a
 # later layer to change one; the browser half reads the last published row.
 - insert:
     - id: dsh-mobile-remote-view

@@ -10,6 +10,7 @@
 
 import { SCROLL_ATTRIBUTE, SCROLL_ROOT_ATTRIBUTE } from '../../constants/dom.ts'
 import { createElement, icon } from '../../utils/dom.ts'
+import type { Translate } from '../locale.ts'
 
 /** What the scroll pair asks for. */
 export interface ScrollHandlers {
@@ -24,31 +25,56 @@ export interface ScrollHandlers {
 export interface ScrollView {
   /** The strip element. */
   readonly root: HTMLElement
+  /** Re-read the labels of the active language. */
+  refresh(): void
 }
 
 /**
  * Build the scroll pair.
  * @param doc - the page's document.
+ * @param t - text lookup for the active language.
  * @param handlers - the scroll action.
  * @returns the strip.
  */
-export function createScrollStrip(doc: Document, handlers: ScrollHandlers): ScrollView {
+export function createScrollStrip(doc: Document, t: Translate, handlers: ScrollHandlers): ScrollView {
   const root = createElement(doc, 'div', {
     [SCROLL_ROOT_ATTRIBUTE]: '',
     role: 'toolbar',
-    'aria-label': '滚动',
+    'aria-label': t('strip.aria'),
   })
-  const rows: readonly { action: string; label: string; icon: 'scrollUp' | 'scrollDown'; direction: number }[] = [
-    { action: 'scroll:up', label: '上滚', icon: 'scrollUp', direction: -1 },
-    { action: 'scroll:down', label: '下滚', icon: 'scrollDown', direction: 1 },
+  const rows: readonly { action: string; textKey: 'strip.up' | 'strip.down'; icon: 'scrollUp' | 'scrollDown'; direction: number }[] = [
+    { action: 'scroll:up', textKey: 'strip.up', icon: 'scrollUp', direction: -1 },
+    { action: 'scroll:down', textKey: 'strip.down', icon: 'scrollDown', direction: 1 },
   ]
+  const labels: HTMLElement[] = []
+  const keys: HTMLButtonElement[] = []
   for (const row of rows) {
-    root.append(createElement(doc, 'button', {
+    const label = t(row.textKey)
+    const span = createElement(doc, 'span', {}, [label])
+    const button = createElement(doc, 'button', {
       type: 'button',
       [SCROLL_ATTRIBUTE]: String(row.direction),
-      title: row.label,
-      'aria-label': row.label,
-    }, [icon(doc, row.icon), createElement(doc, 'span', {}, [row.label])]))
+      title: label,
+      'aria-label': label,
+    }, [icon(doc, row.icon), span])
+    keys.push(button)
+    labels.push(span)
+    root.append(button)
+  }
+
+  /** Re-read the labels after a language switch. */
+  const refresh = (): void => {
+    rows.forEach((row, index) => {
+      const label = t(row.textKey)
+      const button = keys[index]
+      const span = labels[index]
+      if (button !== undefined) {
+        button.title = label
+        button.setAttribute('aria-label', label)
+      }
+      if (span !== undefined) span.textContent = label
+    })
+    root.setAttribute('aria-label', t('strip.aria'))
   }
   root.addEventListener('click', (event) => {
     const target = event.target
@@ -59,5 +85,5 @@ export function createScrollStrip(doc: Document, handlers: ScrollHandlers): Scro
     event.stopPropagation()
     handlers.scroll(Number(button.getAttribute(SCROLL_ATTRIBUTE)))
   })
-  return { root }
+  return { root, refresh }
 }

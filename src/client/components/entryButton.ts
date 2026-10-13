@@ -10,6 +10,7 @@
 
 import { ENTRY_ATTRIBUTE, SHELL_WINDOW_DRAG } from '../../constants/dom.ts'
 import { createElement, icon } from '../../utils/dom.ts'
+import type { Translate } from '../locale.ts'
 
 /** The built entry button. */
 export interface EntryView {
@@ -19,21 +20,25 @@ export interface EntryView {
   ensureIn(sidebarRoot: HTMLElement): void
   /** Remove the button from the page. */
   remove(): void
+  /** Re-read the label of the active language. */
+  refresh(): void
 }
 
 /**
  * Build the entry button.
  * @param doc - the page's document.
+ * @param t - text lookup for the active language.
  * @param onEnter - invoked when the button is activated.
  * @returns the button and its placement helpers.
  */
-export function createEntryButton(doc: Document, onEnter: () => void): EntryView {
+export function createEntryButton(doc: Document, t: Translate, onEnter: () => void): EntryView {
+  const label = createElement(doc, 'span', {}, [t('entry.label')])
   const root = createElement(doc, 'button', {
     type: 'button',
     [ENTRY_ATTRIBUTE]: '',
-    title: '进入手机远程模式',
-    'aria-label': '进入手机远程模式',
-  }, [icon(doc, 'phone'), createElement(doc, 'span', {}, ['手机远程模式'])])
+    title: t('entry.enter'),
+    'aria-label': t('entry.enter'),
+  }, [icon(doc, 'phone'), label])
   root.addEventListener('click', (event) => {
     event.preventDefault()
     event.stopPropagation()
@@ -62,6 +67,11 @@ export function createEntryButton(doc: Document, onEnter: () => void): EntryView
 
   return {
     root,
+    refresh(): void {
+      label.textContent = t('entry.label')
+      root.title = t('entry.enter')
+      root.setAttribute('aria-label', t('entry.enter'))
+    },
     ensureIn,
     remove(): void {
       root.remove()

@@ -13,7 +13,8 @@ import {
   BAR_ACTION_ATTRIBUTE, BAR_ACTIVE_ATTRIBUTE, BAR_DANGER_ATTRIBUTE, BAR_ROOT_ATTRIBUTE,
 } from '../../constants/dom.ts'
 import { createElement, icon, type IconName } from '../../utils/dom.ts'
-import { pageKeyAction, pageKeyIcon, pageKeyLabel, type BarState } from '../utils/barState.ts'
+import type { Translate } from '../locale.ts'
+import { pageKeyAction, pageKeyIcon, pageKeyLabel, pageKeyTitleKey, type BarState } from '../utils/barState.ts'
 
 /** What the bar's keys ask the controller to do. */
 export interface BarHandlers {
@@ -50,10 +51,10 @@ interface KeySpec {
   readonly action: string
   /** Icon name, or a function of the state for a key with more than one face. */
   readonly icon: IconName | ((state: BarState) => IconName)
-  /** Text label, or a function of the state. */
-  readonly label: string | ((state: BarState) => string)
-  /** Tooltip text, or a function of the state. */
-  readonly title: string | ((state: BarState) => string)
+  /** Text label for the active language and state. */
+  readonly label: (state: BarState, t: Translate) => string
+  /** Tooltip text for the active language and state. */
+  readonly title: (state: BarState, t: Translate) => string
   /** Whether the key is showing at all. */
   readonly visible?: (state: BarState) => boolean
   /** Whether the key is the one currently in effect. */
@@ -70,47 +71,43 @@ const KEYS: readonly KeySpec[] = [
   {
     action: 'fullscreen',
     icon: 'fullscreen',
-    label: '全屏',
-    title: state => state.fullscreen
-      ? '退出全屏，把桌面还给窗口'
-      : '让整个 App 窗口占满屏幕（相当于窗口标题栏上那颗绿色按钮）',
+    label: (_state, t) => t('bar.fullscreen'),
+    title: (state, t) => t(state.fullscreen ? 'bar.fullscreen.leave' : 'bar.fullscreen.enter'),
     visible: state => state.fullscreenAvailable,
     active: state => state.fullscreen,
   },
   {
     action: 'pages',
     icon: state => pageKeyIcon(state),
-    label: state => pageKeyLabel(state),
-    title: state => pageKeyLabel(state) === '关闭右栏'
-      ? '关掉右栏面板并回到主界面'
-      : pageKeyLabel(state) === '侧栏' ? '侧栏占满一屏' : '主界面占满一屏',
+    label: (state, t) => pageKeyLabel(state, t),
+    title: (state, t) => t(pageKeyTitleKey(state)),
     active: state => pageKeyAction(state) === 'closeRightbar',
   },
   {
     action: 'scale',
     icon: 'scale',
-    label: '页面缩放',
-    title: state => `页面缩放（当前 ${String(Math.round(state.scale * 100))}%）`,
+    label: (_state, t) => t('bar.scale'),
+    title: (state, t) => t('bar.scale.title', { percent: Math.round(state.scale * 100) }),
     active: state => state.popoverOpen === 'scale',
   },
   {
     action: 'font',
     icon: 'font',
-    label: '正文字号',
-    title: state => `正文字号（当前 ${String(state.contentFontSize)}px）`,
+    label: (_state, t) => t('bar.font'),
+    title: (state, t) => t('bar.font.title', { size: state.contentFontSize }),
     active: state => state.popoverOpen === 'font',
   },
   {
     action: 'flip',
     icon: 'flip',
-    label: '翻转',
-    title: () => '换一个 90° 方向',
+    label: (_state, t) => t('bar.flip'),
+    title: (_state, t) => t('bar.flip.title'),
   },
   {
     action: 'exit',
     icon: 'exit',
-    label: '退出',
-    title: () => '退出手机远程模式（界面转回原样）',
+    label: (_state, t) => t('bar.exit'),
+    title: (_state, t) => t('bar.exit.title'),
     danger: true,
   },
 ]
@@ -121,14 +118,15 @@ export const BAR_KEY_COUNT = KEYS.length
 /**
  * Build the control bar.
  * @param doc - the page's document.
+ * @param t - text lookup for the active language.
  * @param handlers - the actions the keys invoke.
  * @returns the bar and its refresh entry point.
  */
-export function createBar(doc: Document, handlers: BarHandlers): BarView {
+export function createBar(doc: Document, t: Translate, handlers: BarHandlers): BarView {
   const root = createElement(doc, 'div', {
     [BAR_ROOT_ATTRIBUTE]: '',
     role: 'toolbar',
-    'aria-label': '手机远程模式控制条',
+    'aria-label': t('bar.aria'),
   })
   const keys = new Map<string, {
     key: HTMLButtonElement
@@ -138,12 +136,10 @@ export function createBar(doc: Document, handlers: BarHandlers): BarView {
     label: string
   }>()
 
-  const renderLabel = (spec: KeySpec, state: BarState): string =>
-    typeof spec.label === 'string' ? spec.label : spec.label(state)
+  const renderLabel = (spec: KeySpec, state: BarState): string => spec.label(state, t)
   const renderIcon = (spec: KeySpec, state: BarState): IconName =>
     typeof spec.icon === 'string' ? spec.icon : spec.icon(state)
-  const renderTitle = (spec: KeySpec, state: BarState): string =>
-    typeof spec.title === 'string' ? spec.title : spec.title(state)
+  const renderTitle = (spec: KeySpec, state: BarState): string => spec.title(state, t)
 
   /** State used only to give the keys their first face before any refresh. */
   const empty: BarState = {

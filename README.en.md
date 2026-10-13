@@ -134,6 +134,10 @@ sits beside the bar and moves 70% of a screen per tap.
 After the rotation every measurement API answers in the page's own coordinates, so overlays still hug
 their trigger. The layer can be switched off (menus then land a quarter turn away).
 
+### The interface follows the language
+
+The bar, the strip, the entry row, the popovers and the card all ship Chinese and English copy and follow the shell's language setting live; the English side stays short enough for the narrowest key (Full / Sidebar / Chat / Close / Zoom / Font / Flip / Exit).
+
 ### Leaving gives it all back
 
 Exit turns the layout back and restores the sidebar to the state it had before you entered; the
@@ -213,7 +217,7 @@ state on entry and restoring it on exit.
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `rotate` | `-90` \| `90` | `-90` | Rotation direction; the bar's 「翻转」 writes it |
-| `barEdge` | `top` \| `bottom` \| `left` \| `right` | `top` | Which screen edge the bar sits on (in the phone's own terms) |
+| `barEdge` | `top` \| `bottom` \| `left` \| `right` | `left` | Which screen edge the bar sits on (in the phone's own terms) |
 | `barSize` | 40–120 | `58` | Bar thickness in page pixels |
 | `scale` | 0.6–2.5 | `1.5` | Overall page zoom |
 | `contentFontSize` | 12–27 | `19` | Body and composer font size in page pixels |
@@ -249,6 +253,7 @@ src/
     ├── services/               # the state machine, the fullscreen face
     ├── utils/                  # region discovery, coordinate layer, page-key faces
     └── styles.ts               # the mode's stylesheet
+locale/                         # zh.json / en.json: the UI copy, its `meta` block naming the plugin
 assets/                         # the screenshots used by this document (invented content)
 test/                           # 49 node:test unit tests (bundle smoke test included)
 scripts/install-profile.mjs      # install as a profile bundle / restore
