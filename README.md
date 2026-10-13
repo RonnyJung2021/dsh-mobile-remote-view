@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="dsh-mobile-remote-view —— 把 DSH Web GUI 转 90°，一屏一页" width="100%">
+<img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/banner.png" alt="dsh-mobile-remote-view —— 把 DSH Web GUI 转 90°，一屏一页" width="100%">
 
 # dsh-mobile-remote-view
 
@@ -38,7 +38,7 @@
 ### 入口就在侧栏里
 
 <p align="center">
-  <img src="assets/entry.png" alt="侧栏 logo 行与新会话之间多了一行「手机远程模式」" width="100%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/entry.png" alt="侧栏 logo 行与新会话之间多了一行「手机远程模式」" width="100%">
 </p>
 
 **一行「手机远程模式」**夹在 logo 行与「新会话」之间，和新会话同宽；装完默认只能从这里进 —— 想让它每次自动进，去插件卡片勾一项（见[配置](#配置)）。
@@ -46,7 +46,7 @@
 ### 一屏一页，控制条贴在边上
 
 <p align="center">
-  <img src="assets/hero.png" alt="手机远程模式下的对话页：整个画面转了 90°，控制条与滚动条贴在一条边上" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/hero.png" alt="手机远程模式下的对话页：整个画面转了 90°，控制条与滚动条贴在一条边上" width="46%">
 </p>
 
 **整个 GUI 转了过来** —— 这张就是手机屏上看到的样子：画面转了 90°，六颗键（全屏 / 页键 / 页面缩放 / 正文字号 / 翻转 / 退出）与滚动条排在一条边上，正文按手机的形状重新排版，一屏只放这一块。
@@ -54,7 +54,7 @@
 ### 侧栏页：整列铺满，行也变高
 
 <p align="center">
-  <img src="assets/sidebar-page.png" alt="侧栏页占满整屏，会话行变高" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/sidebar-page.png" alt="侧栏页占满整屏，会话行变高" width="46%">
 </p>
 
 **点页键切到侧栏**：外壳原本 280px 宽的那一列被撑满整屏，会话行抬到 48px、面板行 44px；点会话行、点「插件」这类面板行，都会自动回到对话页。
@@ -66,8 +66,8 @@
 ### 缩放与字号，两颗键各带一个浮窗
 
 <p align="center">
-  <img src="assets/popover-scale.png" alt="页面缩放浮窗：− 115% +" width="46%">
-  <img src="assets/popover-font.png" alt="正文字号浮窗：− 19px +" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/popover-scale.png" alt="页面缩放浮窗：− 115% +" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/popover-font.png" alt="正文字号浮窗：− 19px +" width="46%">
 </p>
 
 **点一下开、点一下收**，连点 `+` `−` 浮窗一直开着，改到满意为止；改动当场生效，同时写进 profile 配置与本地存储。
@@ -75,7 +75,7 @@
 ### 七个旋钮都在插件卡片上
 
 <p align="center">
-  <img src="assets/card.png" alt="侧栏「插件」里的手机远程视图卡片：七个旋钮" width="100%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/card.png" alt="侧栏「插件」里的手机远程视图卡片：七个旋钮" width="100%">
 </p>
 
 **侧栏「插件」→ 手机远程视图**：旋转方向、控制条位置与厚度、页面缩放、正文字号、自动进入、换算坐标。写进 profile，换端口、重启、换窗口都还在。
@@ -84,8 +84,8 @@
 
 <table>
 <tr>
-<td width="50%" align="center"><img src="assets/before.png" alt="整个桌面压进手机：三栏挤在一起" width="100%"></td>
-<td width="50%" align="center"><img src="assets/hero.png" alt="手机远程模式：一屏一页" width="100%"></td>
+<td width="50%" align="center"><img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/before.png" alt="整个桌面压进手机：三栏挤在一起" width="100%"></td>
+<td width="50%" align="center"><img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/hero.png" alt="手机远程模式：一屏一页" width="100%"></td>
 </tr>
 <tr>
 <td align="center">直接远程看：整个桌面压进手机，正文 ≈ 8px</td>

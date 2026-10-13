@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="dsh-mobile-remote-view — turn the DSH Web GUI a quarter turn, one region per screen" width="100%">
+<img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/banner.png" alt="dsh-mobile-remote-view — turn the DSH Web GUI a quarter turn, one region per screen" width="100%">
 
 # dsh-mobile-remote-view
 
@@ -44,7 +44,7 @@ and turns "one region at a time" into page switching.
 ### The way in lives in the sidebar
 
 <p align="center">
-  <img src="assets/entry.png" alt="A mobile remote mode row between the logo row and the new-session button" width="100%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/entry.png" alt="A mobile remote mode row between the logo row and the new-session button" width="100%">
 </p>
 
 **One row, 「手机远程模式」**, sits between the logo row and the new-session button, as wide as
@@ -54,7 +54,7 @@ want it to enter on its own (see [Configuration](#configuration)).
 ### One region per screen, controls along an edge
 
 <p align="center">
-  <img src="assets/hero.png" alt="The conversation page in mobile remote mode: the whole picture has turned 90°, with the bar and strip along one edge" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/hero.png" alt="The conversation page in mobile remote mode: the whole picture has turned 90°, with the bar and strip along one edge" width="46%">
 </p>
 
 **The whole GUI has turned** — this is what the phone screen shows: the picture is a quarter turn
@@ -64,7 +64,7 @@ edge, and the conversation is re-laid out for the phone's shape, one block filli
 ### The sidebar page: the whole column, taller rows
 
 <p align="center">
-  <img src="assets/sidebar-page.png" alt="The sidebar page filling the screen, with taller rows" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/sidebar-page.png" alt="The sidebar page filling the screen, with taller rows" width="46%">
 </p>
 
 **The page key switches to the sidebar**: the column the shell keeps at 280px stretches to the screen,
@@ -79,8 +79,8 @@ While it is open the page key reads 「关闭右栏」 — one tap closes it.
 ### Zoom and font size, each behind its own popover
 
 <p align="center">
-  <img src="assets/popover-scale.png" alt="Zoom popover: − 115% +" width="46%">
-  <img src="assets/popover-font.png" alt="Font-size popover: − 19px +" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/popover-scale.png" alt="Zoom popover: − 115% +" width="46%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/popover-font.png" alt="Font-size popover: − 19px +" width="46%">
 </p>
 
 **Tap to open, tap to close.** The popover stays open while you tap `+` `−`, so you can keep adjusting;
@@ -89,7 +89,7 @@ a change applies at once and is written to both the profile config and local sto
 ### Seven knobs on the plugin card
 
 <p align="center">
-  <img src="assets/card.png" alt="The mobile remote view card under Plugins, with its seven knobs" width="100%">
+  <img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/card.png" alt="The mobile remote view card under Plugins, with its seven knobs" width="100%">
 </p>
 
 **Sidebar → Plugins → 手机远程视图**: rotation, bar edge and thickness, page zoom, font size,
@@ -100,8 +100,8 @@ keeps them.
 
 <table>
 <tr>
-<td width="50%" align="center"><img src="assets/before.png" alt="The whole desktop squeezed into the phone: three columns crowded together" width="100%"></td>
-<td width="50%" align="center"><img src="assets/hero.png" alt="Mobile remote mode: one region per screen" width="100%"></td>
+<td width="50%" align="center"><img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/before.png" alt="The whole desktop squeezed into the phone: three columns crowded together" width="100%"></td>
+<td width="50%" align="center"><img src="https://raw.githubusercontent.com/RonnyJung2021/dsh-mobile-remote-view/main/assets/hero.png" alt="Mobile remote mode: one region per screen" width="100%"></td>
 </tr>
 <tr>
 <td align="center">Viewing it directly: the whole desktop squeezed in, body ≈ 8px</td>
